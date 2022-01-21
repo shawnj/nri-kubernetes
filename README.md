@@ -67,6 +67,60 @@ For running unit tests, run
 make test
 ```
 
+### Run Tilt local environment
+
+For the development process [kind](https://kind.sigs.k8s.io), [tilt](https://tilt.dev/) and [ctlptl](https://github.com/tilt-dev/ctlptl) tools are used.
+
+* [Install kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
+* [Install Tilt](https://docs.tilt.dev/install.html)
+* [Install ctlptl](https://github.com/tilt-dev/ctlptl/blob/main/INSTALL.md)
+
+#### Configure Tilt
+
+Tilt default config uses a `kind` cluster for testing which is created by `ctlptl` and no extra configuration is needed.
+
+If you want to use existing Kubernetes cluster, create `tilt_option.json` file with content similar to below:
+
+```json
+{
+  "default_registry": "quay.io/<your username>",
+  "allowed_contexts": "<kubeconfig context to use>"
+}
+```
+
+##### Helm chart location
+
+To deploy the metrics adapter, the current Tilt configuration expects the New Relic [helm-charts](https://github.com/newrelic/helm-charts) repository to be cloned as a sibling to this repository under the name `helm-charts-newrelic`.
+
+If you have `helm-charts` repository cloned into a different path, you can configure Tilt to use it by adding the following key-value pair to your local `tilt_option.json` file:
+
+```
+  "chart_path": "../../helm-charts-newrelic/charts/newrelic-infrastructure-v3/"
+```
+
+#### Creating kind cluster
+
+If you want to use a local `kind` cluster for testing, create it with command below:
+
+```sh
+make kind-up
+```
+
+#### Run
+
+If you use a `kind` cluster, simply run:
+
+```sh
+make tilt-up
+```
+
+If you deploy on external cluster, run the command below, pointing `TILT_KUBECONFIG` to your `kubeconfig` file:
+
+```sh
+TILT_KUBECONFIG=~/.kube/config make tilt-down
+```
+
+Now, when you make changes to the code, the metrics adapter binary will be built locally, copied to the Pod, and then executed.
 ## Running OpenShift locally using CodeReady Containers
 
 - See [OpenShift.md](./OpenShift.md) for more details regarding running locally OpenShift environments.

@@ -7,3 +7,6 @@ nri-kubernetes.yml
 
 e2e/charts/e2e-resources/Chart.lock
 e2e/charts/e2e-resources/charts/
+
+/values-local.yaml
+/nri-kubernetes-linux

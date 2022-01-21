@@ -1,6 +1,6 @@
 OSFLAG := $(shell uname -s | tr A-Z a-z)
 OSFLAG := $(OSFLAG)_amd64
-BIN_DIR = ./bin
+BIN_DIR ?= ./bin
 TOOLS_DIR := $(BIN_DIR)/dev-tools
 BINARY_NAME = nri-kubernetes
 E2E_BINARY_NAME := $(BINARY_NAME)-e2e
@@ -80,3 +80,25 @@ buildLicenseNotice:
 .PHONY: run-static
 run-static:
 	@go run cmd/kubernetes-static/main.go cmd/kubernetes-static/basic_http_client.go
+
+.PHONY: kind-up
+kind-up:
+	@echo "[kind-up] Creating local Kind cluster for development."
+	@which ctlptl >/dev/null 2>&1 || (echo "ctlptl binary not found. Follow https://github.com/tilt-dev/ctlptl/blob/main/INSTALL.md "; exit 0)
+	ctlptl apply -f kind.yaml
+
+.PHONY: kind-down
+kind-down:
+	@echo "[kind-down] Cleans up local Kind cluster."
+	ctlptl delete -f kind.yaml
+
+.PHONY: tilt-up
+tilt-up: 
+	@echo "[tilt-up] Starting Tilt."
+	@which tilt >/dev/null 2>&1 || (echo "tilt binary not found. Follow https://docs.tilt.dev/install.html"; exit 0)
+	tilt up
+
+.PHONY: tilt-down
+tilt-down: 
+	@echo "[tilt-down] Closing Tilt."
+	tilt down
