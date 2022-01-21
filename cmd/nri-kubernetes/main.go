@@ -259,6 +259,16 @@ func buildClients(c *config.Config) (*clusterClients, error) {
 
 func createIntegrationWithHTTPSink(config *config.Config) (*integration.Integration, error) {
 	c := pester.New()
+
+	if config.Sink.HTTP.TLS.Enabled {
+		tlsClient, err := sink.NewTLSClient(config.Sink.HTTP.TLS)
+		if err != nil {
+			return nil, fmt.Errorf("creating TLS client: %w", err)
+		}
+
+		c.EmbedHTTPClient(tlsClient)
+	}
+
 	c.Backoff = func(retry int) time.Duration {
 		return config.Sink.HTTP.BackoffDelay
 	}
