@@ -259,6 +259,7 @@ func buildClients(c *config.Config) (*clusterClients, error) {
 
 func createIntegrationWithHTTPSink(config *config.Config) (*integration.Integration, error) {
 	c := pester.New()
+	scheme := "http"
 
 	if config.Sink.HTTP.TLS.Enabled {
 		tlsClient, err := sink.NewTLSClient(config.Sink.HTTP.TLS)
@@ -266,6 +267,7 @@ func createIntegrationWithHTTPSink(config *config.Config) (*integration.Integrat
 			return nil, fmt.Errorf("creating TLS client: %w", err)
 		}
 
+		scheme = "https"
 		c.EmbedHTTPClient(tlsClient)
 	}
 
@@ -284,7 +286,7 @@ func createIntegrationWithHTTPSink(config *config.Config) (*integration.Integrat
 	endpoint := net.JoinHostPort(sink.DefaultAgentForwarderhost, strconv.Itoa(config.Sink.HTTP.Port))
 
 	sinkOptions := sink.HTTPSinkOptions{
-		URL:        fmt.Sprintf("http://%s%s", endpoint, sink.DefaultAgentForwarderPath),
+		URL:        fmt.Sprintf("%s://%s%s", scheme, endpoint, sink.DefaultAgentForwarderPath),
 		Client:     c,
 		CtxTimeout: config.Sink.HTTP.Timeout,
 		Ctx:        context.Background(),
