@@ -182,6 +182,14 @@ func fillContainerStatuses(pod *v1.Pod, dest map[string]definition.RawMetrics) {
 		name := c.Name
 		id := containerID(pod, name)
 
+		// Set the ExitCode. Zero if no terminated Exit Code.
+		var terminatedExitCode int32 = 0
+		var terminatedExitReason string = "None"
+		if c.LastTerminationState.Terminated != nil {
+			terminatedExitCode = c.LastTerminationState.Terminated.ExitCode
+			terminatedExitReason = c.LastTerminationState.Terminated.Reason
+		}
+
 		dest[id] = make(definition.RawMetrics)
 
 		switch {
@@ -189,15 +197,21 @@ func fillContainerStatuses(pod *v1.Pod, dest map[string]definition.RawMetrics) {
 			dest[id]["status"] = "Running"
 			dest[id]["startedAt"] = c.State.Running.StartedAt.Time.In(time.UTC) // TODO WE DO NOT REPORT THAT METRIC
 			dest[id]["restartCount"] = c.RestartCount
+			dest[id]["terminatedExitCode"] = terminatedExitCode
+			dest[id]["terminatedExitReason"] = terminatedExitReason
 			dest[id]["isReady"] = c.Ready
 		case c.State.Waiting != nil:
 			dest[id]["status"] = "Waiting"
 			dest[id]["reason"] = c.State.Waiting.Reason
+			dest[id]["terminatedExitCode"] = terminatedExitCode
+			dest[id]["terminatedExitReason"] = terminatedExitReason
 			dest[id]["restartCount"] = c.RestartCount
 		case c.State.Terminated != nil:
 			dest[id]["status"] = "Terminated"
 			dest[id]["reason"] = c.State.Terminated.Reason
 			dest[id]["restartCount"] = c.RestartCount
+			dest[id]["terminatedExitCode"] = c.State.Terminated.ExitCode
+			dest[id]["terminatedExitReason"] = c.State.Terminated.Reason
 			dest[id]["startedAt"] = c.State.Terminated.StartedAt.Time.In(time.UTC) // TODO WE DO NOT REPORT THAT METRIC
 		default:
 			dest[id]["status"] = "Unknown"
