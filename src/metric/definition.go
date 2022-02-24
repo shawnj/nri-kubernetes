@@ -943,6 +943,8 @@ var KubeletSpecs = definition.SpecGroups{
 			{Name: "status", ValueFunc: definition.FromRaw("status"), Type: sdkMetric.ATTRIBUTE},
 			{Name: "isReady", ValueFunc: definition.Transform(definition.FromRaw("isReady"), toNumericBoolean), Type: sdkMetric.GAUGE},
 			{Name: "reason", ValueFunc: definition.FromRaw("reason"), Type: sdkMetric.ATTRIBUTE, Optional: true}, // Previously called statusWaitingReason
+			{Name: "terminatedExitCode", ValueFunc: definition.FromRaw("terminatedExitCode"), Type: sdkMetric.GAUGE, Optional: true},
+			{Name: "terminatedExitReason", ValueFunc: definition.FromRaw("terminatedExitReason"), Type: sdkMetric.ATTRIBUTE, Optional: true},
 
 			// Inherit from pod
 			{Name: "label.*", ValueFunc: definition.Transform(definition.FromRaw("labels"), kubeletMetric.OneMetricPerLabel), Type: sdkMetric.ATTRIBUTE},
